@@ -1,0 +1,28 @@
+{
+  "name": "interactive.edu",
+  "version": "0.0.0",
+  "description": "combination of interactive asses hosts",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theracerx/Interactive.edu.git"
+  },
+  "keywords": [
+    "interactive",
+    "education"
+  ],
+  "author": "franklinespiritu@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/theracerx/Interactive.edu/issues"
+  },
+  "homepage": "https://github.com/theracerx/Interactive.edu#readme",
+  "dependencies": {
+    "@google/model-viewer": "^1.9.2",
+    "object.values": "^1.1.5",
+    "panolens": "^0.12.1"
+  }
+}

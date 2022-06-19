@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2/build/pdf.min.js"></script>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,16 +25,16 @@
                     MISC.resizeCont((iFrame.getAttribute("auto-resize") == "true"))
                     await MISC.verifyCssSrc(iFrame.getAttribute("style-src"),"STYLE",iFrame.contentDocument.head)
                     MISC.addMETAViewport(iFrame.contentDocument.head)
-                    await MISC.verifyJsSrc(iFrame.getAttribute("setup-src"),"SETUP",iFrame.contentDocument.head)
-                    await MISC.verifyJsSrc(iFrame.getAttribute("config-src"),"CONFIG",iFrame.contentDocument.head)
+                    await MISC.verifyJsSrc("setup",iFrame.getAttribute("setup-src"),"SETUP",iFrame.contentDocument.head)
+                    await MISC.verifyJsSrc("config",iFrame.getAttribute("config-src"),"CONFIG",iFrame.contentDocument.head)
                 },
                 addMETAViewport:(header)=>{
                     let viewport = MISC.newElem("meta",".")
                     viewport.name = "viewport"
-                    viewport.content = "width=device-width, initial-scale=1.0"
+                    viewport.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
                     header.appendChild(viewport)
                 },
-                verifyJsSrc:(url,clsName,header)=>{
+                verifyJsSrc:(type,url,clsName,header)=>{
                     return new Promise (async(resolve)=>{
                         typeof url != "undefined"?
                             url.includes(".js")?
@@ -41,7 +42,9 @@
                                 : url.charAt(0) == "/"? url = window.location.origin + url
                                 : url = window.location.origin + "/" + url
                             : url = "'iFrame.config-src' and 'iFrame.setup-src' must link to a '.js' Javascript file"
-                        : url = "insert dflt gitSrc"
+                        : type == "setup" ? url = "https://raw.githubusercontent.com/theracerx/Interactive.edu/main/dist/bundle.js"
+                        : url = "https://raw.githubusercontent.com/theracerx/Interactive.edu/main/src/config.js"
+                        
 
 
                         url.includes("http")? await MISC.addScript(url,clsName,header)
@@ -55,17 +58,24 @@
                         let scriptText = await MISC.getURLTextContent(url)
                         let scriptCont = MISC.newElem("script","." + clsName)
                         scriptCont.innerHTML = scriptText
+                        scriptCont.src = url
                         header.appendChild(scriptCont)
                         resolve()
                     })
                 },
-                resizeCont:(resp)=>{
+                resizeCont:(resp)=>{ //fixed at 16:9 aspect ratio
                     const resizeIFrame = ()=>{
                         let cWidth = iFrame.parentElement.offsetWidth
                         let nWidth = cWidth * .95
             
-                        iFrame.style.width = nWidth + "px"
-                        iFrame.style.height = (nWidth * 9)/16 + "px"
+                        iFrame.style.display = "block"
+                        iFrame.style.margin = "0px auto"
+                        // iFrame.style.minWidth = "426px"
+                        iFrame.style.minWidth = "256px"
+                        // iFrame.style.minHeight = "240px"
+                        iFrame.style.minHeight = "144px"
+                        iFrame.style.width = iFrame.cWidth = nWidth + "px"
+                        iFrame.style.height = iFrame.cHeight = (nWidth * 9)/16 + "px"
                     }
                     
                     if(resp){
@@ -81,7 +91,7 @@
                                 : url.charAt(0) == "/"? url = window.location.origin + url
                                 : url = window.location.origin + "/" + url
                             : url = "'iFrame.style-src must link to a '.css' Cascading Style Sheet file"
-                        : url = "insert dflt gitSrc"
+                        : url = "https://raw.githubusercontent.com/theracerx/Interactive.edu/main/css/style.css"
                         
                         url.includes("http")? await MISC.addCss(url,clsName,header)
                         : MISC.throwError(url)
@@ -89,11 +99,20 @@
                         resolve()
                     })
                 },
-                addCss: async(url,clsName,header)=>{
+                addCss2: async(url,clsName,header)=>{
                     let cssContent = await MISC.getURLTextContent(url)
                     let cssCont = MISC.newElem("style","." + clsName)
                     cssCont.type = "text/css"
+                    // window.aaa = cssContent
+                    cssContent = cssContent.replaceAll("../",window.location.origin + "/")
                     cssCont.innerHTML = cssContent
+                    cssCont.href = url
+                    header.appendChild(cssCont)
+                },
+                addCss: async(url,clsName,header)=>{
+                    let cssCont = MISC.newElem("link","." + clsName)
+                    cssCont.rel = "stylesheet"
+                    cssCont.href = url
                     header.appendChild(cssCont)
                 },
                 getURLTextContent: (url)=>{
@@ -101,6 +120,20 @@
                         fetch(url)
                         .then(result => result.text())
                         .then(text => resolve(text))
+                    })
+                },
+                localSrcToOriginSrc: (content)=>{
+                    return new Promise((resolve)=>{
+                        async function loadFonts() {
+                            const font = new FontFace('myfont', 'url(http://127.0.0.1:5500/fonts/dosismedium-xp6m-webfont.woff2)');
+                            // wait for font to be loaded
+                            await font.load();
+                            // add font to document
+                            document.fonts.add(font);
+                            // enable font with CSS class
+                            document.body.classList.add('fonts-loaded');
+                        }
+
                     })
                 },
                 newElem: (type,identity,innerText)=>{
@@ -170,11 +203,14 @@
         style-src="css/style.css"
         debug = "true"
         auto-resize = "true"
-        onload="setupInteractiveEdu()"></iframe>
+        scrolling = "no"
+        src = "about:blank"
+        onload="setupInteractiveEdu()">
+    </iframe>
 </body>
 </html>
 
 <!-- 
     insert Iframe w/ links
-    insert simple js that converts link to js
+    insert simple js that converts link to js   
  -->

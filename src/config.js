@@ -1,9 +1,19 @@
 //slideshow link
-const slideshow = "insert link here";
+window.slideshow = "insert link here";
+window.sampPDF = "MMS200a.FinalProposal2022.pdf"
 
-const InspectViewer=[//vid,link,img,audio
+window.Inspect=[//vid,link,img,audio
     {pos:0}
 ]
+window.Pdf=[
+
+]
+
+window.testAudio = window.origin + "/audios/MrBlue.mp3"
+window.testVideo = window.origin + "/videos/MrBlue.mp4"
+window.testSub = window.origin + "/audios/MrBlueSub.vtt"
+// fetch(testSub).then(r=>r.text()).then(a=>console.log(a))
+
 const PanoViewer=[
     {pos:0}
 ]
@@ -36,3 +46,5 @@ playAudio("")
 playSfxAudio("")
 playBgAudio("")
 */
+
+// console.log(playerBar)
